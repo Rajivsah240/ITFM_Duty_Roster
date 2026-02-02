@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTickets } from '../context/TicketContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import StatusStepper from '../components/StatusStepper';
 import {
   Plus,
@@ -27,6 +28,7 @@ const callTypes = [
 export default function UserDashboard({ activeView }) {
   const { createTicket, getTicketsByUser } = useTickets();
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [expandedTicket, setExpandedTicket] = useState(null);
   const [formData, setFormData] = useState({
     assetId: '',
@@ -61,17 +63,17 @@ export default function UserDashboard({ activeView }) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+        className={`rounded-xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-100">
+        <div className={`p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Plus className="w-6 h-6 text-blue-800" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'}`}>
+              <Plus className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-slate-800">Raise a Query</h2>
-              <p className="text-sm text-slate-500">Submit a new IT support ticket</p>
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Raise a Query</h2>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Submit a new IT support ticket</p>
             </div>
           </div>
         </div>
@@ -83,9 +85,9 @@ export default function UserDashboard({ activeView }) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="p-4 bg-green-50 border-b border-green-100"
+              className={`p-4 border-b ${isDark ? 'bg-green-900/30 border-green-800' : 'bg-green-50 border-green-100'}`}
             >
-              <div className="flex items-center gap-2 text-green-700">
+              <div className={`flex items-center gap-2 ${isDark ? 'text-green-400' : 'text-green-700'}`}>
                 <CheckCircle className="w-5 h-5" />
                 <span className="font-medium">Ticket submitted successfully!</span>
               </div>
@@ -102,7 +104,7 @@ export default function UserDashboard({ activeView }) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg text-sm"
+                className={`flex items-center gap-2 p-3 rounded-lg text-sm ${isDark ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-700'}`}
               >
                 <AlertCircle className="w-4 h-4" />
                 {error}
@@ -112,34 +114,38 @@ export default function UserDashboard({ activeView }) {
 
           {/* Asset ID */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Asset ID *
             </label>
             <div className="relative">
-              <Monitor className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Monitor className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               <input
                 type="text"
                 name="assetId"
                 value={formData.assetId}
                 onChange={handleChange}
                 placeholder="e.g., ASSET-PC-101"
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all ${
+                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-200 text-slate-800'
+                }`}
               />
             </div>
           </div>
 
           {/* Call Type */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Call Type *
             </label>
             <div className="relative">
-              <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Ticket className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               <select
                 name="callType"
                 value={formData.callType}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all appearance-none bg-white"
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all appearance-none ${
+                  isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-200 text-slate-800'
+                }`}
               >
                 <option value="">Select call type</option>
                 {callTypes.map((type) => (
@@ -153,36 +159,40 @@ export default function UserDashboard({ activeView }) {
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Location *
             </label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               <input
                 type="text"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
                 placeholder="e.g., Building A, Floor 2, Room 201"
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all ${
+                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-200 text-slate-800'
+                }`}
               />
             </div>
           </div>
 
           {/* Problem Description */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               Problem Description *
             </label>
             <div className="relative">
-              <FileText className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <FileText className={`absolute left-3 top-3 w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               <textarea
                 name="problemDescription"
                 value={formData.problemDescription}
                 onChange={handleChange}
                 placeholder="Describe the issue in detail..."
                 rows={4}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all resize-none"
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all resize-none ${
+                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-200 text-slate-800'
+                }`}
               />
             </div>
           </div>
@@ -204,10 +214,10 @@ export default function UserDashboard({ activeView }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">My Tickets</h2>
-          <p className="text-sm text-slate-500">Track the status of your submitted tickets</p>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>My Tickets</h2>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Track the status of your submitted tickets</p>
         </div>
-        <span className="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg">
+        <span className={`px-3 py-1.5 text-sm font-medium rounded-lg ${isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
           {myTickets.length} tickets
         </span>
       </div>
@@ -216,13 +226,13 @@ export default function UserDashboard({ activeView }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl border border-slate-200 p-12 text-center"
+          className={`rounded-xl border p-12 text-center ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
         >
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Ticket className="w-8 h-8 text-slate-400" />
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+            <Ticket className={`w-8 h-8 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
           </div>
-          <h3 className="text-lg font-medium text-slate-800 mb-1">No tickets yet</h3>
-          <p className="text-slate-500">You haven't raised any tickets yet.</p>
+          <h3 className={`text-lg font-medium mb-1 ${isDark ? 'text-white' : 'text-slate-800'}`}>No tickets yet</h3>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>You haven't raised any tickets yet.</p>
         </motion.div>
       ) : (
         <div className="space-y-4">
@@ -234,41 +244,41 @@ export default function UserDashboard({ activeView }) {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+                className={`rounded-xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
               >
                 {/* Card Header */}
                 <div
                   onClick={() => setExpandedTicket(isExpanded ? null : ticket.id)}
-                  className="p-5 cursor-pointer hover:bg-slate-50 transition-colors"
+                  className={`p-5 cursor-pointer transition-colors ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Ticket className="w-6 h-6 text-blue-800" />
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'}`}>
+                        <Ticket className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
                       </div>
                       <div>
                         <div className="flex items-center gap-3">
-                          <h3 className="font-semibold text-slate-800">{ticket.id}</h3>
+                          <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.id}</h3>
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                             ticket.status === 'resolved'
-                              ? 'bg-green-100 text-green-700'
+                              ? isDark ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-700'
                               : ticket.status === 'inProgress'
-                              ? 'bg-purple-100 text-purple-700'
+                              ? isDark ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-700'
                               : ticket.status === 'assigned'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-slate-100 text-slate-700'
+                              ? isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-700'
+                              : isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-700'
                           }`}>
                             {ticket.status === 'inProgress' ? 'In Progress' : 
                              ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1">{ticket.problemDescription}</p>
+                        <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{ticket.problemDescription}</p>
                       </div>
                     </div>
                     {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400" />
+                      <ChevronUp className={`w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className={`w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                     )}
                   </div>
                 </div>
@@ -282,24 +292,24 @@ export default function UserDashboard({ activeView }) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="border-t border-slate-100 p-5">
+                      <div className={`border-t p-5 ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
                         {/* Ticket Details */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-slate-50 rounded-lg">
+                        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
                           <div>
-                            <p className="text-xs text-slate-500 mb-1">Asset ID</p>
-                            <p className="text-sm font-medium text-slate-800">{ticket.assetId}</p>
+                            <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Asset ID</p>
+                            <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.assetId}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500 mb-1">Call Type</p>
-                            <p className="text-sm font-medium text-slate-800">{ticket.callType}</p>
+                            <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Call Type</p>
+                            <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.callType}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500 mb-1">Location</p>
-                            <p className="text-sm font-medium text-slate-800">{ticket.location}</p>
+                            <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Location</p>
+                            <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.location}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500 mb-1">Assigned To</p>
-                            <p className="text-sm font-medium text-slate-800">
+                            <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Assigned To</p>
+                            <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>
                               {ticket.assignedToName || 'Pending Assignment'}
                             </p>
                           </div>
@@ -307,8 +317,8 @@ export default function UserDashboard({ activeView }) {
 
                         {/* Status Stepper */}
                         <div>
-                          <h4 className="font-medium text-slate-800 mb-4">Ticket Progress</h4>
-                          <StatusStepper ticket={ticket} />
+                          <h4 className={`font-medium mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>Ticket Progress</h4>
+                          <StatusStepper ticket={ticket} showActionLogs={true} />
                         </div>
                       </div>
                     </motion.div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTickets } from '../context/TicketContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import TicketTable from '../components/TicketTable';
 import AssignModal from '../components/AssignModal';
 import {
@@ -11,17 +12,22 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
+  RefreshCw,
+  User,
 } from 'lucide-react';
 
 export default function AdminDashboard({ activeView }) {
-  const { tickets, getUnassignedTickets, getActiveTickets, getEngineerWorkload, assignTicket } = useTickets();
+  const { tickets, getUnassignedTickets, getActiveTickets, getEngineerWorkload, assignTicket, getReassignRequests, handleReassign } = useTickets();
   const { getEngineers } = useAuth();
+  const { isDark } = useTheme();
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [reassignTicket, setReassignTicket] = useState(null);
 
   const unassigned = getUnassignedTickets();
   const active = getActiveTickets();
   const workload = getEngineerWorkload();
   const engineers = getEngineers();
+  const reassignRequests = getReassignRequests();
 
   const resolved = tickets.filter((t) => t.status === 'resolved').length;
   const totalActive = tickets.filter((t) => t.status !== 'resolved').length;
@@ -31,29 +37,29 @@ export default function AdminDashboard({ activeView }) {
       label: 'Unassigned',
       value: unassigned.length,
       icon: Ticket,
-      color: 'bg-red-50 text-red-600',
-      iconBg: 'bg-red-100',
+      color: isDark ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-600',
+      iconBg: isDark ? 'bg-red-900/50' : 'bg-red-100',
     },
     {
       label: 'Active Issues',
       value: active.length,
       icon: AlertTriangle,
-      color: 'bg-orange-50 text-orange-600',
-      iconBg: 'bg-orange-100',
+      color: isDark ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-600',
+      iconBg: isDark ? 'bg-orange-900/50' : 'bg-orange-100',
     },
     {
-      label: 'Total Active',
-      value: totalActive,
-      icon: Clock,
-      color: 'bg-blue-50 text-blue-600',
-      iconBg: 'bg-blue-100',
+      label: 'Reassign Requests',
+      value: reassignRequests.length,
+      icon: RefreshCw,
+      color: isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-50 text-purple-600',
+      iconBg: isDark ? 'bg-purple-900/50' : 'bg-purple-100',
     },
     {
       label: 'Resolved',
       value: resolved,
       icon: CheckCircle,
-      color: 'bg-green-50 text-green-600',
-      iconBg: 'bg-green-100',
+      color: isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600',
+      iconBg: isDark ? 'bg-green-900/50' : 'bg-green-100',
     },
   ];
 
@@ -69,15 +75,15 @@ export default function AdminDashboard({ activeView }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl border border-slate-200 p-5"
+              className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
             >
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center`}>
                   <Icon className={`w-6 h-6 ${stat.color.split(' ')[1]}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
-                  <p className="text-sm text-slate-500">{stat.label}</p>
+                  <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{stat.value}</p>
+                  <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
                 </div>
               </div>
             </motion.div>
@@ -88,10 +94,10 @@ export default function AdminDashboard({ activeView }) {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Unassigned Tickets */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
+        <div className={`lg:col-span-2 rounded-xl border p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-800">Unassigned Tickets</h3>
-            <span className="px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+            <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Unassigned Tickets</h3>
+            <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${isDark ? 'bg-red-900/50 text-red-300' : 'bg-red-100 text-red-700'}`}>
               {unassigned.length} pending
             </span>
           </div>
@@ -101,14 +107,16 @@ export default function AdminDashboard({ activeView }) {
                 <div
                   key={ticket.id}
                   onClick={() => setSelectedTicket(ticket)}
-                  className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
+                  className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors ${
+                    isDark ? 'bg-slate-700/50 hover:bg-slate-700' : 'bg-slate-50 hover:bg-slate-100'
+                  }`}
                 >
-                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                    <Ticket className="w-5 h-5 text-red-600" />
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+                    <Ticket className={`w-5 h-5 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800">{ticket.id}</p>
-                    <p className="text-sm text-slate-500 truncate">{ticket.problemDescription}</p>
+                    <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.id}</p>
+                    <p className={`text-sm truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{ticket.problemDescription}</p>
                   </div>
                   <button className="px-3 py-1.5 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors">
                     Assign
@@ -117,7 +125,7 @@ export default function AdminDashboard({ activeView }) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-slate-500">
+            <div className={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-2" />
               All tickets are assigned!
             </div>
@@ -125,10 +133,10 @@ export default function AdminDashboard({ activeView }) {
         </div>
 
         {/* Engineer Workload */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className={`rounded-xl border p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-800">Engineer Workload</h3>
-            <Users className="w-5 h-5 text-slate-400" />
+            <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Engineer Workload</h3>
+            <Users className={`w-5 h-5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
           </div>
           <div className="space-y-3">
             {engineers.map((engineer) => {
@@ -139,10 +147,10 @@ export default function AdminDashboard({ activeView }) {
               return (
                 <div key={engineer.id} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-700">{engineer.name}</span>
-                    <span className="text-sm text-slate-500">{count} tickets</span>
+                    <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{engineer.name}</span>
+                    <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{count} tickets</span>
                   </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${percentage}%` }}
@@ -164,10 +172,10 @@ export default function AdminDashboard({ activeView }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">Unassigned Tickets</h2>
-          <p className="text-sm text-slate-500">Tickets waiting for engineer assignment</p>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Unassigned Tickets</h2>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Tickets waiting for engineer assignment</p>
         </div>
-        <span className="px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg">
+        <span className={`px-3 py-1.5 text-sm font-medium rounded-lg ${isDark ? 'bg-red-900/50 text-red-300' : 'bg-red-100 text-red-700'}`}>
           {unassigned.length} tickets
         </span>
       </div>
@@ -183,10 +191,10 @@ export default function AdminDashboard({ activeView }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">Active Issues</h2>
-          <p className="text-sm text-slate-500">Tickets currently being worked on</p>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Active Issues</h2>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Tickets currently being worked on</p>
         </div>
-        <span className="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg">
+        <span className={`px-3 py-1.5 text-sm font-medium rounded-lg ${isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
           {active.length} tickets
         </span>
       </div>
@@ -197,8 +205,8 @@ export default function AdminDashboard({ activeView }) {
   const renderWorkload = () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-slate-800">Engineer Workload</h2>
-        <p className="text-sm text-slate-500">Current ticket distribution across engineers</p>
+        <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Engineer Workload</h2>
+        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Current ticket distribution across engineers</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {engineers.map((engineer) => {
@@ -213,34 +221,34 @@ export default function AdminDashboard({ activeView }) {
               key={engineer.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-slate-200 p-6"
+              className={`rounded-xl border p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
             >
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-800 font-semibold">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
                     {engineer.name.split(' ').map((n) => n[0]).join('')}
                   </span>
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-800">{engineer.name}</p>
-                  <p className="text-sm text-slate-500">{engineer.department}</p>
+                  <p className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{engineer.name}</p>
+                  <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{engineer.department}</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Active Tickets</span>
-                  <span className="font-semibold text-slate-800">{count}</span>
+                  <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Active Tickets</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{count}</span>
                 </div>
                 {engineerTickets.length > 0 && (
                   <div className="space-y-2">
                     {engineerTickets.slice(0, 3).map((ticket) => (
                       <div
                         key={ticket.id}
-                        className="px-3 py-2 bg-slate-50 rounded-lg text-sm"
+                        className={`px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}
                       >
-                        <span className="font-mono text-blue-800">{ticket.id}</span>
-                        <span className="text-slate-400 mx-2">·</span>
-                        <span className="text-slate-600">{ticket.callType}</span>
+                        <span className={`font-mono ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>{ticket.id}</span>
+                        <span className={`mx-2 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>·</span>
+                        <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>{ticket.callType}</span>
                       </div>
                     ))}
                   </div>
@@ -250,6 +258,95 @@ export default function AdminDashboard({ activeView }) {
           );
         })}
       </div>
+    </div>
+  );
+
+  const renderReassignments = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Reassignment Requests</h2>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Engineers requesting ticket reassignment</p>
+        </div>
+        <span className={`px-3 py-1.5 text-sm font-medium rounded-lg ${isDark ? 'bg-orange-900/50 text-orange-300' : 'bg-orange-100 text-orange-700'}`}>
+          {reassignRequests.length} requests
+        </span>
+      </div>
+      
+      {reassignRequests.length > 0 ? (
+        <div className="space-y-4">
+          {reassignRequests.map((ticket) => (
+            <motion.div
+              key={ticket.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`rounded-xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
+            >
+              {/* Header */}
+              <div className={`p-5 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.id}</h3>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-orange-900/50 text-orange-300' : 'bg-orange-100 text-orange-700'}`}>
+                        Reassign Requested
+                      </span>
+                    </div>
+                    <p className={isDark ? 'text-slate-300' : 'text-slate-600'}>{ticket.problemDescription}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Request Details */}
+              <div className={`p-5 ${isDark ? 'bg-slate-700/30' : 'bg-slate-50'}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Current Engineer</p>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'}`}>
+                        <User className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                      </div>
+                      <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.assignedToName}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Requested On</p>
+                    <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                      {new Date(ticket.reassignRequest.requestedAt).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+                  <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Reason for Reassignment</p>
+                  <p className={`italic ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>"{ticket.reassignRequest.reason}"</p>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className={`p-5 border-t flex items-center justify-between ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Select a new engineer to reassign this ticket
+                </p>
+                <button
+                  onClick={() => setReassignTicket(ticket)}
+                  className="px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors"
+                >
+                  Reassign to Another Engineer
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className={`rounded-xl border p-12 text-center ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-green-900/30' : 'bg-green-100'}`}>
+            <CheckCircle className={`w-8 h-8 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+          </div>
+          <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>No Pending Requests</h3>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>All engineers are happy with their assignments</p>
+        </div>
+      )}
     </div>
   );
 
@@ -267,6 +364,7 @@ export default function AdminDashboard({ activeView }) {
           {activeView === 'unassigned' && renderUnassigned()}
           {activeView === 'active' && renderActive()}
           {activeView === 'workload' && renderWorkload()}
+          {activeView === 'reassign' && renderReassignments()}
         </motion.div>
       </AnimatePresence>
 
@@ -277,6 +375,20 @@ export default function AdminDashboard({ activeView }) {
           engineers={engineers}
           onAssign={assignTicket}
           onClose={() => setSelectedTicket(null)}
+        />
+      )}
+
+      {/* Reassign Modal */}
+      {reassignTicket && (
+        <AssignModal
+          ticket={reassignTicket}
+          engineers={engineers.filter(e => e.id !== reassignTicket.assignedTo)}
+          onAssign={(ticketId, engineerId, engineerName) => {
+            handleReassign(ticketId, engineerId, engineerName);
+            setReassignTicket(null);
+          }}
+          onClose={() => setReassignTicket(null)}
+          title="Reassign Ticket"
         />
       )}
     </>

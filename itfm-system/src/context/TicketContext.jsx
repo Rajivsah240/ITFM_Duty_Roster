@@ -17,6 +17,7 @@ const initialTickets = [
     assignedTo: null,
     assignedToName: null,
     actionLogs: [],
+    reassignRequest: null,
     timestamps: {
       raised: '2026-02-01T09:30:00',
       assigned: null,
@@ -37,6 +38,7 @@ const initialTickets = [
     assignedTo: 'EMP002',
     assignedToName: 'John Engineer',
     actionLogs: [],
+    reassignRequest: null,
     timestamps: {
       raised: '2026-02-01T10:15:00',
       assigned: '2026-02-01T11:00:00',
@@ -65,6 +67,7 @@ const initialTickets = [
         engineerName: 'Jane Engineer',
       },
     ],
+    reassignRequest: null,
     timestamps: {
       raised: '2026-02-01T08:00:00',
       assigned: '2026-02-01T08:45:00',
@@ -74,8 +77,46 @@ const initialTickets = [
   },
 ];
 
+// Initial notifications
+const initialNotifications = [
+  {
+    id: 'NOTIF-001',
+    type: 'new_ticket',
+    title: 'New Ticket Raised',
+    message: 'TKT-001: Monitor not displaying properly - Mike Smith',
+    ticketId: 'TKT-001',
+    forRole: 'admin',
+    forUserId: null,
+    timestamp: '2026-02-01T09:30:00',
+    read: false,
+  },
+  {
+    id: 'NOTIF-002',
+    type: 'assigned',
+    title: 'Ticket Assigned to You',
+    message: 'TKT-002: Network printer issue has been assigned to you',
+    ticketId: 'TKT-002',
+    forRole: null,
+    forUserId: 'EMP002',
+    timestamp: '2026-02-01T11:00:00',
+    read: false,
+  },
+  {
+    id: 'NOTIF-003',
+    type: 'severity_high',
+    title: 'Critical Ticket',
+    message: 'TKT-003: Email client issue marked as Critical severity',
+    ticketId: 'TKT-003',
+    forRole: 'admin',
+    forUserId: null,
+    timestamp: '2026-02-01T08:45:00',
+    read: true,
+  },
+];
+
 export function TicketProvider({ children }) {
   const [tickets, setTickets] = useState(initialTickets);
+  const [notifications, setNotifications] = useState(initialNotifications);
 
   const generateTicketId = () => {
     const maxId = tickets.reduce((max, ticket) => {
@@ -83,6 +124,16 @@ export function TicketProvider({ children }) {
       return num > max ? num : max;
     }, 0);
     return `TKT-${String(maxId + 1).padStart(3, '0')}`;
+  };
+
+  const addNotification = (notification) => {
+    const newNotification = {
+      id: `NOTIF-${Date.now()}`,
+      ...notification,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    setNotifications((prev) => [newNotification, ...prev]);
   };
 
   const createTicket = (ticketData, user) => {
@@ -99,6 +150,7 @@ export function TicketProvider({ children }) {
       assignedTo: null,
       assignedToName: null,
       actionLogs: [],
+      reassignRequest: null,
       timestamps: {
         raised: new Date().toISOString(),
         assigned: null,
@@ -107,6 +159,17 @@ export function TicketProvider({ children }) {
       },
     };
     setTickets([...tickets, newTicket]);
+    
+    // Add notification for admin
+    addNotification({
+      type: 'new_ticket',
+      title: 'New Ticket Raised',
+      message: `${newTicket.id}: ${ticketData.problemDescription.substring(0, 50)}... - ${user.name}`,
+      ticketId: newTicket.id,
+      forRole: 'admin',
+      forUserId: null,
+    });
+    
     return newTicket;
   };
 
@@ -120,6 +183,7 @@ export function TicketProvider({ children }) {
             assignedToName: engineerName,
             severity: severity,
             status: 'assigned',
+            reassignRequest: null,
             timestamps: {
               ...ticket.timestamps,
               assigned: new Date().toISOString(),
@@ -129,6 +193,28 @@ export function TicketProvider({ children }) {
         return ticket;
       })
     );
+    
+    // Notify the engineer
+    addNotification({
+      type: 'assigned',
+      title: 'Ticket Assigned to You',
+      message: `${ticketId} has been assigned to you with ${severity === 1 ? 'Critical' : severity === 2 ? 'High' : 'Medium'} severity`,
+      ticketId: ticketId,
+      forRole: null,
+      forUserId: engineerId,
+    });
+    
+    // Notify admin if high severity
+    if (severity === 1) {
+      addNotification({
+        type: 'severity_high',
+        title: 'Critical Ticket Assigned',
+        message: `${ticketId} assigned to ${engineerName} with Critical severity`,
+        ticketId: ticketId,
+        forRole: 'admin',
+        forUserId: null,
+      });
+    }
   };
 
   const startProgress = (ticketId) => {
@@ -207,6 +293,127 @@ export function TicketProvider({ children }) {
     return { success: true };
   };
 
+  // Request reassignment
+  const requestReassign = (ticketId, reason, engineer) => {
+    setTickets(
+      tickets.map((ticket) => {
+        if (ticket.id === ticketId) {
+          return {
+            ...ticket,
+            reassignRequest: {
+              requestedBy: engineer.id,
+              requestedByName: engineer.name,
+              reason: reason,
+              timestamp: new Date().toISOString(),
+            },
+          };
+        }
+        return ticket;
+      })
+    );
+    
+    // Notify admin
+    addNotification({
+      type: 'reassign_request',
+      title: 'Reassignment Requested',
+      message: `${engineer.name} requests reassignment of ${ticketId}: ${reason.substring(0, 50)}...`,
+      ticketId: ticketId,
+      forRole: 'admin',
+      forUserId: null,
+    });
+    
+    return { success: true };
+  };
+
+  // Get notifications for a user
+  const getNotifications = (userId, role) => {
+    return notifications.filter((n) => {
+      if (n.forUserId === userId) return true;
+      if (n.forRole === role) return true;
+      return false;
+    });
+  };
+
+  // Mark notification as read
+  const markNotificationRead = (notificationId) => {
+    setNotifications(
+      notifications.map((n) =>
+        n.id === notificationId ? { ...n, read: true } : n
+      )
+    );
+  };
+
+  // Clear all notifications for user
+  const clearNotifications = (userId) => {
+    setNotifications(
+      notifications.filter((n) => n.forUserId !== userId && n.forRole !== 'admin')
+    );
+  };
+
+  // Get unread notification count
+  const getUnreadCount = (userId, role) => {
+    return getNotifications(userId, role).filter((n) => !n.read).length;
+  };
+
+  // Get tickets with reassign requests
+  const getReassignRequests = () => {
+    return tickets.filter((t) => t.reassignRequest !== null);
+  };
+
+  // Handle reassignment by admin
+  const handleReassign = (ticketId, newEngineerId, newEngineerName) => {
+    const ticket = tickets.find((t) => t.id === ticketId);
+    if (!ticket) return { success: false, error: 'Ticket not found' };
+    
+    const oldEngineerName = ticket.assignedToName;
+    
+    setTickets(
+      tickets.map((t) => {
+        if (t.id === ticketId) {
+          return {
+            ...t,
+            assignedTo: newEngineerId,
+            assignedToName: newEngineerName,
+            reassignRequest: null,
+            actionLogs: [
+              ...t.actionLogs,
+              {
+                id: `LOG-${Date.now()}`,
+                description: `Ticket reassigned from ${oldEngineerName} to ${newEngineerName}`,
+                timestamp: new Date().toISOString(),
+                engineerId: 'SYSTEM',
+                engineerName: 'System',
+              },
+            ],
+          };
+        }
+        return t;
+      })
+    );
+    
+    // Notify the new engineer
+    addNotification({
+      type: 'assigned',
+      title: 'Ticket Reassigned to You',
+      message: `${ticketId} has been reassigned to you from ${oldEngineerName}`,
+      ticketId: ticketId,
+      forRole: null,
+      forUserId: newEngineerId,
+    });
+    
+    // Notify the old engineer
+    addNotification({
+      type: 'reassigned',
+      title: 'Ticket Reassigned',
+      message: `${ticketId} has been reassigned to ${newEngineerName} as per your request`,
+      ticketId: ticketId,
+      forRole: null,
+      forUserId: ticket.assignedTo,
+    });
+    
+    return { success: true };
+  };
+
   const getTicketsByUser = (userId) => {
     return tickets.filter((ticket) => ticket.raisedBy === userId);
   };
@@ -247,16 +454,24 @@ export function TicketProvider({ children }) {
     <TicketContext.Provider
       value={{
         tickets,
+        notifications,
         createTicket,
         assignTicket,
         startProgress,
         addActionLog,
         resolveTicket,
+        requestReassign,
+        handleReassign,
         getTicketsByUser,
         getTicketsByEngineer,
         getUnassignedTickets,
         getActiveTickets,
         getEngineerWorkload,
+        getNotifications,
+        markNotificationRead,
+        clearNotifications,
+        getUnreadCount,
+        getReassignRequests,
       }}
     >
       {children}
