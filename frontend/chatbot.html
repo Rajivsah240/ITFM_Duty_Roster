@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ITFM Support Portal</title>
+
+    <style>
+        :root {
+            --panel-bg: #111315;
+            --accent-blue: #8A8AFF;
+            --bot-bubble: rgba(255,255,255,0.05);
+            --user-bubble: #8A8AFF;
+            --text-high: #ffffff;
+            --text-med: #a0a0a0;
+            --internal-glow: radial-gradient(circle at 50% 100%, rgba(184,184,255,0.25) 50%, transparent 100%);
+            --web-bg: #f5f7f9;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: var(--web-bg);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #widget-root {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #bot-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,.2);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #bot-icon:hover { transform: scale(1.1); }
+
+        .chat-container {
+            display: none;
+            width: 380px;
+            height: 650px;
+            max-height: 85vh;
+            background: var(--internal-glow), var(--panel-bg);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,.5);
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            #widget-root.expanded .chat-container {
+                width: 850px;
+                height: 750px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #widget-root { bottom: 0; right: 0; width: 100%; }
+            .chat-container {
+                width: 100vw !important;
+                height: 100dvh !important;
+                border-radius: 0;
+                position: fixed;
+                top: 0; left: 0;
+            }
+        }
+
+        .header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,.05);
+        }
+
+        .header-title {
+            color: white;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        #chat-flow {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .bot { align-self: flex-start; background: var(--bot-bubble); color: var(--text-high); border-bottom-left-radius: 4px; }
+        .user { align-self: flex-end; background: var(--user-bubble); color: white; border-bottom-right-radius: 4px; }
+
+        .chip-container {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .chip-container::-webkit-scrollbar { display: none; }
+        
+        .action-chip {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-med);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .action-chip:hover {
+            background: rgba(184, 184, 255, 0.15);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .feedback-tray {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .fb-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-med);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .fb-btn:hover { background: rgba(184,184,255,0.1); color: var(--accent-blue); }
+
+        .thinking {
+            display: none;
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        #thinking-text {
+            display: block;
+            font-size: 12px;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dot {
+            width: 5px; height: 5px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse { 0%,100% { opacity:.2; } 50% { opacity:1; } }
+
+        .input-bar {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding-bottom: max(15px, env(safe-area-inset-bottom));
+        }
+
+        input {
+            flex: 1;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .send-btn {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="widget-root">
+    <div id="bot-icon" onclick="toggleChat(true)">✦</div>
+
+    <div id="chat-panel" class="chat-container">
+        <div class="header">
+            <div class="header-title">
+                <span style="color:var(--accent-blue); font-size:20px;">✦</span>
+                ITFM Support Intelligence
+            </div>
+            <div>
+                <button class="fb-btn" onclick="expand()">⤢</button>
+                <button class="fb-btn" onclick="toggleChat(false)" style="margin-left:8px;">─</button>
+            </div>
+        </div>
+
+        <div id="chat-flow">
+            <div class="bubble bot">Welcome. Select a quick action or describe your technical issue.</div>
+        </div>
+
+        <div id="thinking-ui" class="thinking">
+            <span id="thinking-text">Analyzing...</span>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+
+        <div class="chip-container" id="chip-box">
+            <div class="action-chip" onclick="useChip('How do I reset my Windows password?')">🔑 Password Reset</div>
+            <div class="action-chip" onclick="useChip('VPN is not connecting')">🌐 VPN Help</div>
+            <div class="action-chip" onclick="useChip('Connect to office printer')">🖨️ Printer Setup</div>
+        </div>
+
+        <div class="input-bar">
+            <input id="user-input" placeholder="Type your issue..." autocomplete="off" onkeypress="if(event.key==='Enter')sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const panel = document.getElementById('chat-panel');
+const icon = document.getElementById('bot-icon');
+const flow = document.getElementById('chat-flow');
+const input = document.getElementById('user-input');
+const thinking = document.getElementById('thinking-ui');
+const thinkingText = document.getElementById('thinking-text');
+
+let turnCount = 0;
+let lastQuery = "";
+let thinkingTimeouts = [];
+
+const thinkingSteps = [
+    "Establishing secure session...",
+    "Querying ITFM internal database...",
+    "Reranking verified solutions...",
+    "Cross-referencing web docs...",
+    "Finalizing troubleshooting steps..."
+];
+
+function toggleChat(open) {
+    if (open) {
+        icon.style.display = 'none';
+        panel.style.display = 'flex';
+        setTimeout(() => { panel.style.opacity = 1; panel.style.transform = 'translateY(0)'; }, 50);
+    } else {
+        panel.style.opacity = 0;
+        panel.style.transform = 'translateY(20px)';
+        setTimeout(() => { panel.style.display = 'none'; icon.style.display = 'flex'; }, 300);
+    }
+}
+
+function expand() { document.getElementById('widget-root').classList.toggle('expanded'); }
+
+function useChip(text) {
+    input.value = text;
+    sendMessage();
+}
+
+function startThinkingUI() {
+    stopThinkingUI();
+    thinking.style.display = 'block';
+    flow.scrollTop = flow.scrollHeight;
+    let step = 0;
+    const updateStep = () => {
+        if (step < thinkingSteps.length) {
+            thinkingText.textContent = thinkingSteps[step];
+            step++;
+            thinkingTimeouts.push(setTimeout(updateStep, 1000 + Math.random() * 800));
+        }
+    };
+    updateStep();
+}
+
+function stopThinkingUI() {
+    thinkingTimeouts.forEach(t => clearTimeout(t));
+    thinking.style.display = 'none';
+}
+
+// Typing effect function
+async function typeWriter(text, element) {
+    const words = text.split(' ');
+    let currentHTML = '';
+    for (let i = 0; i < words.length; i++) {
+        currentHTML += words[i] + ' ';
+        // Live format bold and newlines
+        element.innerHTML = currentHTML
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+        flow.scrollTop = flow.scrollHeight;
+        await new Promise(resolve => setTimeout(resolve, 40)); // Speed in ms
+    }
+}
+
+async function sendMessage() {
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    lastQuery = msg;
+    turnCount++;
+    appendBubble(msg, 'user');
+    input.value = '';
+    startThinkingUI();
+
+    try {
+        const res = await fetch('http://localhost:8000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        stopThinkingUI();
+        
+        let reply = data.reply;
+        if (turnCount >= 4) {
+            reply += "\n\n**ESCALATION:** If unresolved, please contact ITFM Helpdesk at **2252**.";
+        }
+        
+        appendBubble(reply, 'bot', true);
+    } catch {
+        stopThinkingUI();
+        appendBubble("System Error: Unable to reach ITFM servers.", 'bot');
+    }
+}
+
+function appendBubble(text, type, shouldType = false) {
+    const div = document.createElement('div');
+    div.className = `bubble ${type}`;
+    flow.appendChild(div);
+
+    if (shouldType && type === 'bot') {
+        typeWriter(text, div).then(() => {
+            if (!text.includes("Welcome")) {
+                addFeedbackTray(div, text);
+            }
+        });
+    } else {
+        div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    }
+    
+    flow.scrollTop = flow.scrollHeight;
+}
+
+function addFeedbackTray(parentDiv, text) {
+    const tray = document.createElement('div');
+    tray.className = 'feedback-tray';
+    
+    const ok = document.createElement('button');
+    ok.className = 'fb-btn'; ok.innerHTML = '👍 Solved';
+    ok.onclick = () => submitFeedback(lastQuery, text, true, tray);
+
+    const no = document.createElement('button');
+    no.className = 'fb-btn'; no.innerHTML = '👎 No';
+    no.onclick = () => submitFeedback(lastQuery, text, false, tray);
+
+    tray.append(ok, no);
+    parentDiv.appendChild(tray);
+}
+
+async function submitFeedback(query, response, isHelpful, tray) {
+    tray.innerHTML = `<span style="font-size:11px; color:var(--accent-blue);">✦ Contribution Saved.</span>`;
+    await fetch('http://localhost:8000/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, response, is_helpful: isHelpful })
+    });
+}
+</script>
+</body>
+</html>

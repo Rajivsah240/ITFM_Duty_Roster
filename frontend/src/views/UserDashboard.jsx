@@ -4,6 +4,7 @@ import { useTickets } from '../context/TicketContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import StatusStepper from '../components/StatusStepper';
+import Chatbot from '../components/Chatbot';
 import {
   Plus,
   Ticket,
@@ -390,17 +391,22 @@ export default function UserDashboard({ activeView }) {
   );
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={activeView}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.2 }}
-      >
-        {activeView === 'raise' && renderRaiseQuery()}
-        {activeView === 'mytickets' && renderMyTickets()}
-      </motion.div>
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.2 }}
+        >
+          {activeView === 'raise' && renderRaiseQuery()}
+          {activeView === 'mytickets' && renderMyTickets()}
+        </motion.div>
+      </AnimatePresence>
+      
+      {/* AI Chatbot */}
+      <Chatbot />
+    </>
   );
 }
