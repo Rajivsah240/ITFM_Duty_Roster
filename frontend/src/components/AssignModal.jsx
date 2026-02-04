@@ -91,7 +91,7 @@ export default function AssignModal({ ticket, engineers, onAssign, onClose, titl
                     key={engineer._id}
                     className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedEngineer === engineer._id
-                        ? isDark ? 'border-blue-500 bg-blue-500/20' : 'border-blue-800 bg-blue-50'
+                        ? isDark ? 'border-blue-500 bg-blue-500/20' : 'border-blue-500 bg-blue-50'
                         : isDark ? 'border-dark-border hover:border-dark-hover' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -104,14 +104,14 @@ export default function AssignModal({ ticket, engineers, onAssign, onClose, titl
                       className="sr-only"
                     />
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                      <User className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                      <User className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                     </div>
                     <div className="flex-1">
                       <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{engineer.name}</p>
                       <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{engineer.department}</p>
                     </div>
                     {selectedEngineer === engineer._id && (
-                      <Check className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                      <Check className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                     )}
                   </label>
                 ))}
@@ -154,7 +154,7 @@ export default function AssignModal({ ticket, engineers, onAssign, onClose, titl
                         <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{option.desc}</p>
                       </div>
                       {severity === option.value && (
-                        <Check className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                        <Check className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                       )}
                     </label>
                   );
@@ -168,7 +168,7 @@ export default function AssignModal({ ticket, engineers, onAssign, onClose, titl
               <button
                 type="submit"
                 disabled={!selectedEngineer || (!isReassign && !severity)}
-                className="flex-1 py-2.5 bg-blue-800 dark:bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-900 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 bg-blue-500 dark:bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isReassign ? 'Reassign Ticket' : 'Assign Ticket'}
               </button>

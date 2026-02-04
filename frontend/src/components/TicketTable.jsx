@@ -108,7 +108,7 @@ export default function TicketTable({ tickets, onRowClick, showAssignee = true }
                   } ${isDark ? 'hover:bg-dark-hover' : 'hover:bg-slate-50'}`}
                 >
                   <td className="px-4 py-4">
-                    <span className={`font-mono text-sm font-medium ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>
+                    <span className={`font-mono text-sm font-medium ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>
                       {ticket.ticketId}
                     </span>
                   </td>

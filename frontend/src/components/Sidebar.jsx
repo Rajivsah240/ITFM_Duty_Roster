@@ -54,7 +54,7 @@ export default function Sidebar({ activeView, setActiveView }) {
       {/* Logo */}
       <div className={`p-6 border-b ${isDark ? 'border-dark-border' : 'border-slate-100'}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center shadow-lg shadow-blue-800/25">
+          <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
             <Building2 className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -68,7 +68,7 @@ export default function Sidebar({ activeView, setActiveView }) {
       <div className={`p-4 mx-4 mt-4 rounded-xl ${isDark ? 'bg-dark-elevated' : 'bg-slate-50'}`}>
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-            <span className={`font-semibold text-sm ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>
+            <span className={`font-semibold text-sm ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>
               {user.name.split(' ').map((n) => n[0]).join('')}
             </span>
           </div>
@@ -94,7 +94,7 @@ export default function Sidebar({ activeView, setActiveView }) {
               onClick={() => setActiveView(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-800 dark:bg-blue-500 text-white shadow-lg shadow-blue-800/25 dark:shadow-blue-500/25'
+                  ? 'bg-blue-500 dark:bg-blue-500 text-white shadow-lg shadow-blue-500/25 dark:shadow-blue-500/25'
                   : isDark 
                     ? 'text-slate-300 hover:bg-dark-hover' 
                     : 'text-slate-600 hover:bg-slate-100'

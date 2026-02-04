@@ -114,7 +114,7 @@ export default function NotificationPanel({ isOpen, onClose }) {
                 {notifications.length > 0 && (
                   <button
                     onClick={handleClearAll}
-                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                    className="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400"
                   >
                     Clear all
                   </button>

@@ -148,7 +148,7 @@ export default function AdminDashboard({ activeView }) {
                     <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.ticketId}</p>
                     <p className={`text-sm truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{ticket.problemDescription}</p>
                   </div>
-                  <button className="px-3 py-1.5 bg-blue-800 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-900 dark:hover:bg-blue-600 transition-colors">
+                  <button className="px-3 py-1.5 bg-blue-500 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors">
                     Assign
                   </button>
                 </div>
@@ -255,7 +255,7 @@ export default function AdminDashboard({ activeView }) {
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                  <span className={`font-semibold ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>
                     {engineer.name.split(' ').map((n) => n[0]).join('')}
                   </span>
                 </div>
@@ -276,7 +276,7 @@ export default function AdminDashboard({ activeView }) {
                         key={ticket._id}
                         className={`px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-dark-elevated' : 'bg-slate-50'}`}
                       >
-                        <span className={`font-mono ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>{ticket.ticketId}</span>
+                        <span className={`font-mono ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>{ticket.ticketId}</span>
                         <span className={`mx-2 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>·</span>
                         <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>{ticket.callType}</span>
                       </div>
@@ -334,7 +334,7 @@ export default function AdminDashboard({ activeView }) {
                     <p className={`text-xs mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Current Engineer</p>
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                        <User className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                        <User className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                       </div>
                       <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{ticket.assignedTo?.name}</span>
                     </div>
@@ -360,7 +360,7 @@ export default function AdminDashboard({ activeView }) {
                 </p>
                 <button
                   onClick={() => setReassignTicket(ticket)}
-                  className="px-4 py-2 bg-blue-800 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-900 dark:hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 bg-blue-500 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors"
                 >
                   Reassign to Another Engineer
                 </button>
@@ -401,7 +401,7 @@ export default function AdminDashboard({ activeView }) {
   if (loading && tickets.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-800"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
   }

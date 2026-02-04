@@ -51,14 +51,14 @@ export default function ActionLogger({ ticket, onAddAction, onResolve }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className={`font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-          <FileText className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+          <FileText className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
           Action Log
         </h3>
         <div className="flex items-center gap-2">
           {!isAdding && (
             <button
               onClick={() => setIsAdding(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-800 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-900 dark:hover:bg-blue-600 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Action
@@ -113,7 +113,7 @@ export default function ActionLogger({ ticket, onAddAction, onResolve }) {
                 }}
                 placeholder="Describe the action taken..."
                 rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all resize-none ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none ${
                   isDark ? 'bg-dark-input border-dark-border text-white placeholder-slate-400' : 'bg-white border-slate-200 text-slate-800'
                 }`}
               />
@@ -121,7 +121,7 @@ export default function ActionLogger({ ticket, onAddAction, onResolve }) {
             <div className="flex items-center gap-2">
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-800 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-900 dark:hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 bg-blue-500 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors"
               >
                 Save Action
               </button>
@@ -164,7 +164,7 @@ export default function ActionLogger({ ticket, onAddAction, onResolve }) {
                 transition={{ delay: index * 0.1 }}
                 className="relative pl-10 pb-4"
               >
-                <div className={`absolute left-2.5 w-3 h-3 rounded-full border-2 ${isDark ? 'bg-blue-500 border-dark-card' : 'bg-blue-800 border-white'}`} />
+                <div className={`absolute left-2.5 w-3 h-3 rounded-full border-2 ${isDark ? 'bg-blue-500 border-dark-card' : 'bg-blue-500 border-white'}`} />
                 <div className={`rounded-lg p-4 shadow-sm ${isDark ? 'bg-dark-elevated border border-dark-border' : 'bg-white border border-slate-200'}`}>
                   <p className={`text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{log.action}</p>
                   <div className={`flex items-center gap-4 mt-3 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>

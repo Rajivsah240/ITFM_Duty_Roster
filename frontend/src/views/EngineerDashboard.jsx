@@ -98,7 +98,7 @@ export default function EngineerDashboard() {
   if (loading && tickets.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-800"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function EngineerDashboard() {
           onClick={() => setShowHistory(false)}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             !showHistory
-              ? 'bg-blue-800 dark:bg-blue-500 text-white'
+              ? 'bg-blue-500 dark:bg-blue-500 text-white'
               : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-800'
           }`}
         >
@@ -182,7 +182,7 @@ export default function EngineerDashboard() {
           onClick={() => setShowHistory(true)}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             showHistory
-              ? 'bg-blue-800 dark:bg-blue-500 text-white'
+              ? 'bg-blue-500 dark:bg-blue-500 text-white'
               : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-800'
           }`}
         >
@@ -246,7 +246,7 @@ export default function EngineerDashboard() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                      <Wrench className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-800'}`} />
+                      <Wrench className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-3 mb-1">
@@ -512,7 +512,7 @@ export default function EngineerDashboard() {
                   onChange={(e) => setReassignReason(e.target.value)}
                   placeholder="Explain why you need this ticket reassigned..."
                   rows={4}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 outline-none transition-all resize-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none ${
                     isDark 
                       ? 'bg-dark-input border-dark-border text-white placeholder-slate-400' 
                       : 'bg-white border-slate-200 text-slate-800'
